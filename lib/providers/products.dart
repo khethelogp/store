@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import './product.dart';
 
 class Products with ChangeNotifier {
@@ -54,29 +56,35 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  // void showFavoritesOnly() {
-  //   _showFavoritesOnly = true;
-  //   notifyListeners();
-  // }
+  Future<void> addProduct(Product product) async{
+    // const url = 'https://flutter-store-cd51b-default-rtdb.firebaseio.com/products.json';
+    var url = Uri.parse('https://flutter-store-cd51b-default-rtdb.firebaseio.com/products.json');
+    await http.post(
+      url, 
+      body: json.encode({
+        'title': product.title,
+        'description': product.description,
+        'imageUrl': product.imageUrl,
+        'price': product.price,
+        'isFavoirte': product.isFavorite
+      })
+    ).then((response) {
+      final newProduct = Product(
+        title: product.title, 
+        description: product.description, 
+        price: product.price, 
+        imageUrl: product.imageUrl,
+        id: json.decode(response.body)['name'],
+      );
 
-  // void showAll() {
-  //   _showFavoritesOnly = false;
-  //   notifyListeners();
-  // }
+      // _items.insert(0, newProduct);
+      _items.add(newProduct);
+      notifyListeners();
+    }).catchError((error) {
+      print(error);
+      throw error;
+    });
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-      title: product.title, 
-      description: product.description, 
-      price: product.price, 
-      imageUrl: product.imageUrl,
-      id: DateTime.now().toString(),
-    );
-
-    // _items.insert(0, newProduct);
-    _items.add(newProduct);
-
-    notifyListeners();
   }
 
   void updateProduct(String id, Product newProduct){
