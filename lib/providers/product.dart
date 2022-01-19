@@ -32,7 +32,7 @@ class Product with ChangeNotifier {
     var url = Uri.parse('https://flutter-store-cd51b-default-rtdb.firebaseio.com/products/$id.json');
     try {
       final response = await http.patch(url, body: json.encode({
-        'isFavoirte': isFavorite,
+        'isFavorite': isFavorite,
         })
       );
       if(response.statusCode >= 400) {
